@@ -4,24 +4,19 @@ import (
 	"fmt"
 	"hospital-api/config"
 	"hospital-api/internal/database"
+	"hospital-api/internal/server"
 	"log"
-
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	cfg := config.Load()
 
-	_, err := database.New(cfg)
+	db, err := database.New(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	r := gin.New()
-
-	r.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{"message": "ok"})
-	})
+	r := server.New(db)
 
 	fmt.Println("Server started")
 	r.Run(":" + cfg.Port)

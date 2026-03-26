@@ -5,15 +5,14 @@ import (
 	"gorm.io/gorm"
 )
 
-type Server struct {
-	db     *gorm.DB
-	router *gin.Engine
-}
-
-func New(db *gorm.DB) *Server {
+func New(db *gorm.DB) *gin.Engine {
 	r := gin.New()
 
 	r.Use(CORS())
 
-	return nil
+	r.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{"message": "ok"})
+	})
+
+	return r
 }
