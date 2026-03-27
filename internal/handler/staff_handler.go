@@ -23,13 +23,13 @@ func (h *StaffHandler) StaffCreate(c *gin.Context) {
 	var req dto.StaffRequestBaseFields
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.Error(c, http.StatusBadRequest, response.BodyInvalidMsg)
+		response.Error(c, http.StatusBadRequest, response.ErrBodyInvalid)
 		return
 	}
 
 	hospital, err := h.hosSrv.FindOne(req.Hospital)
 	if err != nil || hospital == nil {
-		response.Error(c, http.StatusBadRequest, response.DataNotFoundMsg)
+		response.Error(c, http.StatusBadRequest, response.ErrDataNotFound)
 		return
 	}
 
@@ -43,20 +43,27 @@ func (h *StaffHandler) StaffCreate(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, staff)
+	data := dto.CreateStaffResponse{
+		ID:         staff.ID,
+		Username:   staff.Username,
+		HospitalID: staff.HospitalID,
+		CreatedAt:  staff.CreatedAt,
+		UpdatedAt:  staff.UpdatedAt,
+	}
+	response.Success(c, data)
 }
 
 func (h *StaffHandler) StaffLogin(c *gin.Context) {
 	var req dto.StaffRequestBaseFields
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.Error(c, http.StatusBadRequest, response.BodyInvalidMsg)
+		response.Error(c, http.StatusBadRequest, response.ErrBodyInvalid)
 		return
 	}
 
 	result, err := h.srv.Login(req)
 	if err != nil {
-		response.Error(c, http.StatusUnauthorized, response.UnAuthorized)
+		response.Error(c, http.StatusUnauthorized, response.ErrUnAuthorized)
 		return
 	}
 

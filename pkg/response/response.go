@@ -7,9 +7,11 @@ import (
 )
 
 const (
-	BodyInvalidMsg  = "body invalid"
-	DataNotFoundMsg = "data not found"
-	UnAuthorized    = "user unauthorized"
+	ErrBodyInvalid       = "body invalid"
+	ErrDataNotFound      = "data not found"
+	ErrUnAuthorized      = "unauthorized"
+	ErrMissingAuthHeader = "missing authorization header"
+	ErrInvalidAuthFormat = "invalid authorization header format"
 )
 
 func Success(c *gin.Context, data ...any) {

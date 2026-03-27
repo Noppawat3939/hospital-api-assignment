@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"hospital-api/internal/route"
 	"hospital-api/pkg/response"
 	"net/http"
 
@@ -16,5 +17,7 @@ func (s *Server) registerRoutes() {
 		response.Error(c, http.StatusNotFound, msg)
 	})
 
-	RegisterStaffRoutes(s.router, s.db)
+	route.RegisterStaffRoutes(s.router, s.db)
+	route.RegisterPatientRoutes(s.router, s.db)
+	route.RegisterMockRoutes(r)
 }
