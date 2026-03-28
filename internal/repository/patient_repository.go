@@ -27,39 +27,36 @@ func (r *patientRepository) FindAll(hospitalID string, req dto.SearchPatientRequ
 
 	query := r.db.Where("hospital_id = ?", hospitalID)
 
-	if req.NationalID != nil && *req.NationalID != "" {
-		query = query.Where("national_id = ?", *req.NationalID)
+	// exact match filters
+	exactFilters := map[string]*string{
+		"national_id":  req.NationalID,
+		"passport_id":  req.PassportID,
+		"phone_number": req.PhoneNumber,
+		"email":        req.Email,
 	}
 
-	if req.PassportID != nil && *req.PassportID != "" {
-		query = query.Where("passport_id = ?", *req.PassportID)
+	for col, val := range exactFilters {
+		if val != nil && *val != "" {
+			query = query.Where(col+" = ?", *val)
+		}
 	}
 
-	if req.FirstName != nil && *req.FirstName != "" {
-		keyword := "%" + *req.FirstName + "%"
-		query = query.Where("(first_name_th ILIKE ? OR first_name_en ILIKE ?)", keyword, keyword)
+	// ILIKE filters
+	ilikeFilters := map[string]*string{
+		"first_name":  req.FirstName,
+		"middle_name": req.MiddleName,
+		"last_name":   req.LastName,
 	}
 
-	if req.MiddleName != nil && *req.MiddleName != "" {
-		keyword := "%" + *req.MiddleName + "%"
-		query = query.Where("(middle_name_th ILIKE ? OR middle_name_en ILIKE ?)", keyword, keyword)
-	}
-
-	if req.LastName != nil && *req.LastName != "" {
-		keyword := "%" + *req.LastName + "%"
-		query = query.Where("(last_name_th ILIKE ? OR last_name_en ILIKE ?)", keyword, keyword)
+	for field, val := range ilikeFilters {
+		if val != nil && *val != "" {
+			kw := "%" + *val + "%"
+			query = query.Where("("+field+"_th ILIKE ? OR "+field+"_en ILIKE ?)", kw, kw)
+		}
 	}
 
 	if req.DateOfBirth != nil {
 		query = query.Where("date_of_birth = ?", *req.DateOfBirth)
-	}
-
-	if req.PhoneNumber != nil && *req.PhoneNumber != "" {
-		query = query.Where("phone_number = ?", *req.PhoneNumber)
-	}
-
-	if req.Email != nil && *req.Email != "" {
-		query = query.Where("email = ?", *req.Email)
 	}
 
 	p := pagination.Pagination{Limit: req.Limit, Offset: req.Page}

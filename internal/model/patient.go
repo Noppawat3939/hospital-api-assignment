@@ -20,7 +20,7 @@ type Patient struct {
 	LastNameEN   string        `gorm:"not null" json:"last_name_en"`
 	DateOfBirth  *time.Time    `json:"date_of_birth"`
 	PatientHN    string        `gorm:"unique;not null" json:"patient_hn"`
-	NationalID   string        `gorm:"unique;not null" json:"national_id"`
+	NationalID   *string       `gorm:"unique" json:"national_id"`
 	PassportID   *string       `gorm:"unique" json:"passport_id"`
 	PhoneNumber  *string       `json:"phone_number"`
 	Email        *string       `json:"email"`

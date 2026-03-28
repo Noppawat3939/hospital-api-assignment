@@ -3,36 +3,25 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"hospital-api/internal/dto"
 	"net/http"
 	"time"
 )
 
-type HospitalClient struct {
+type hospitalClient struct {
 	baseURL string
 	client  *http.Client
 }
 
-type PatientResponse struct {
-	FirstNameTH  string  `json:"first_name_th"`
-	MiddleNameTH *string `json:"middle_name_th"`
-	LastNameTH   string  `json:"last_name_th"`
-	FirstNameEN  string  `json:"first_name_en"`
-	MiddleNameEN *string `json:"middle_name_en"`
-	LastNameEN   string  `json:"last_name_en"`
-	DateOfBirth  string  `json:"date_of_birth"`
-	PatientHN    string  `json:"patient_hn"`
-	NationalID   string  `json:"national_id"`
-	PassportID   string  `json:"passport_id"`
-	PhoneNumber  *string `json:"phone_number"`
-	Email        *string `json:"email"`
-	Gender       string  `json:"gender"`
+type HospitalClient interface {
+	GetPatientByID(id string) (*dto.HospitalClientPatientResponse, error)
 }
 
-func NewHospitalClient(baseURL string) *HospitalClient {
-	return &HospitalClient{baseURL: baseURL, client: &http.Client{Timeout: 5 * time.Second}}
+func NewHospitalClient(baseURL string) *hospitalClient {
+	return &hospitalClient{baseURL: baseURL, client: &http.Client{Timeout: 5 * time.Second}}
 }
 
-func (c *HospitalClient) GetPatientByID(id string) (*PatientResponse, error) {
+func (c *hospitalClient) GetPatientByID(id string) (*dto.HospitalClientPatientResponse, error) {
 	url := fmt.Sprintf("%s/patient/search/%s", c.baseURL, id)
 
 	res, err := c.client.Get(url)
@@ -46,7 +35,7 @@ func (c *HospitalClient) GetPatientByID(id string) (*PatientResponse, error) {
 		return nil, fmt.Errorf("HIS api error %d", res.StatusCode)
 	}
 
-	var response PatientResponse
+	var response dto.HospitalClientPatientResponse
 	if err := json.NewDecoder(res.Body).Decode(&response); err != nil {
 		return nil, err
 	}

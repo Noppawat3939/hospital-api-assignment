@@ -4,7 +4,7 @@ import "time"
 
 const YYYYMMDD = "2006-01-02"
 
-func ParseData(v string) (*time.Time, error) {
+func ParseDate(v string) (*time.Time, error) {
 	if v == "" {
 		return nil, nil
 	}

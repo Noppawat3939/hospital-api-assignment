@@ -15,7 +15,7 @@ Table patient {
   last_name_en text [not null]
   date_of_birth date [note: "YYYY-MM-DD format"]
   patient_hn text [unique, not null]
-  national_id text [unique, not null]
+  national_id text [unique, null]
   passport_id text [unique, null]
   phone_number text [null]
   email text [unique, null]

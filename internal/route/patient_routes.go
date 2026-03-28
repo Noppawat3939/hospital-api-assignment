@@ -21,7 +21,7 @@ func RegisterPatientRoutes(r *gin.Engine, db *gorm.DB) {
 	repo := repository.NewPatientRepositroy(db)
 	hosClient := client.NewHospitalClient(hisBaseURL)
 
-	srv := service.NewPatientService(repo, *hosClient)
+	srv := service.NewPatientService(repo, hosClient)
 
 	h := handler.NewPatientHandler(srv)
 

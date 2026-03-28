@@ -2,6 +2,7 @@ package handler
 
 import (
 	"hospital-api/internal/dto"
+	"hospital-api/internal/mapper"
 	"hospital-api/internal/service"
 	"hospital-api/pkg/db"
 	"hospital-api/pkg/response"
@@ -45,13 +46,8 @@ func (h *StaffHandler) StaffCreate(c *gin.Context) {
 		return
 	}
 
-	data := dto.CreateStaffResponse{
-		ID:         staff.ID,
-		Username:   staff.Username,
-		HospitalID: staff.HospitalID,
-		CreatedAt:  staff.CreatedAt,
-		UpdatedAt:  staff.UpdatedAt,
-	}
+	data := mapper.ToCreateStaffResponse(staff)
+
 	response.Success(c, data)
 }
 
@@ -69,7 +65,7 @@ func (h *StaffHandler) StaffLogin(c *gin.Context) {
 		return
 	}
 
-	data := dto.StaffLoginResult{AccessToken: result.AccessToken}
+	data := mapper.ToStaffLoginResult(result)
 
 	response.Success(c, data)
 }

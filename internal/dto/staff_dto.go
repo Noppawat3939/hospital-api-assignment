@@ -25,7 +25,6 @@ type CreateStaffResponse struct {
 
 func (r *StaffRequestBaseFields) Normalize() {
 	// expected snake_case format
-
 	us := strings.TrimSpace(r.Username)
 	us = strings.ToLower(us)
 	us = strings.ReplaceAll(us, " ", "_")

@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func setupTestDB(t *testing.T) *gorm.DB {
+func setupStaffTestDB(t *testing.T) *gorm.DB {
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	if err != nil {
 		t.Fatalf("failed to connect to in-memory db: %v", err)
@@ -23,7 +23,7 @@ func setupTestDB(t *testing.T) *gorm.DB {
 }
 
 func TestStaffRepository_Create(t *testing.T) {
-	db := setupTestDB(t)
+	db := setupStaffTestDB(t)
 	repo := NewStaffRepository(db)
 
 	staff := model.Staff{
@@ -40,7 +40,7 @@ func TestStaffRepository_Create(t *testing.T) {
 }
 
 func TestStaffRepository_FindOneByUsernameAndHospitalID(t *testing.T) {
-	db := setupTestDB(t)
+	db := setupStaffTestDB(t)
 	repo := NewStaffRepository(db)
 
 	// insert a record

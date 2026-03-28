@@ -3,11 +3,9 @@ package service
 import (
 	"hospital-api/internal/client"
 	"hospital-api/internal/dto"
+	"hospital-api/internal/mapper"
 	"hospital-api/internal/model"
 	"hospital-api/internal/repository"
-	"hospital-api/pkg/timeutil"
-	"strings"
-	"time"
 
 	"gorm.io/gorm"
 )
@@ -68,7 +66,7 @@ func (s *patientService) Search(hospitalID string, req dto.SearchPatientRequest)
 		return nil, err
 	}
 
-	mapped, err := mapPatientToCreate(res, hospitalID)
+	mapped, err := mapper.ToCreatePatient(res, hospitalID)
 	if err != nil {
 		return nil, err
 	}
@@ -80,59 +78,4 @@ func (s *patientService) Search(hospitalID string, req dto.SearchPatientRequest)
 	}
 
 	return []model.Patient{*patient}, nil
-}
-
-func mapPatientToCreate(res *client.PatientResponse, hospitalID string) (model.Patient, error) {
-	var dob *time.Time
-
-	if res.DateOfBirth != "" {
-		parsed, err := timeutil.ParseData(res.DateOfBirth)
-
-		if err != nil {
-			return model.Patient{}, err
-		}
-
-		dob = parsed
-	}
-
-	return model.Patient{
-		HospitalID:   hospitalID,
-		FirstNameTH:  res.FirstNameTH,
-		MiddleNameTH: res.MiddleNameTH,
-		LastNameTH:   res.LastNameTH,
-		FirstNameEN:  res.FirstNameEN,
-		MiddleNameEN: res.MiddleNameEN,
-		LastNameEN:   res.LastNameEN,
-		DateOfBirth:  dob,
-		PatientHN:    res.PatientHN,
-		NationalID:   res.NationalID,
-		PassportID:   stringToPtr(res.PassportID),
-		PhoneNumber:  res.PhoneNumber,
-		Email:        res.Email,
-		Gender:       mapGender(res.Gender),
-	}, nil
-}
-
-func mapGender(v string) model.PatientGender {
-	cleaned := strings.ToUpper(strings.TrimSpace(v))
-
-	var data model.PatientGender
-
-	switch cleaned {
-	case "M":
-		data = model.Male
-	case "F":
-		data = "F"
-	default:
-		data = ""
-	}
-
-	return data
-}
-
-func stringToPtr(s string) *string {
-	if s == "" {
-		return nil
-	}
-	return &s
 }
