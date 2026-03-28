@@ -2,6 +2,9 @@ FROM golang:1.25-alpine
 
 WORKDIR /app
 
+# install git for go mod
+RUN apk add --no-cache git ca-certificates
+
 COPY go.mod go.sum ./
 RUN go mod tidy
 

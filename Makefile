@@ -12,4 +12,9 @@ compose-up:
 	docker compose up -d
 	
 compose-down:
-	docker-compose down
+	docker compose down
+
+compose-build:
+	docker compose build --no-cache
+
+docker-run: compose-down compose-build compose-up
