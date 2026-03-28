@@ -12,6 +12,9 @@ const (
 	ErrUnAuthorized      = "unauthorized"
 	ErrMissingAuthHeader = "missing authorization header"
 	ErrInvalidAuthFormat = "invalid authorization header format"
+	ErrInvalidCrediental = "invalid creadiental"
+	ErrHospitalInvalid   = "hospital invalid"
+	ErrDupCreateStaff    = "staff already exits in this hospital"
 )
 
 func Success(c *gin.Context, data ...any) {

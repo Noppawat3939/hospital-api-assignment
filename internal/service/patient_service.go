@@ -1,16 +1,19 @@
 package service
 
 import (
-	"fmt"
 	"hospital-api/internal/client"
 	"hospital-api/internal/dto"
 	"hospital-api/internal/model"
 	"hospital-api/internal/repository"
+	"hospital-api/pkg/timeutil"
+	"strings"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type PatientService interface {
-	Search(hospitalID string, req dto.SearchPatientRequest, limit int) ([]model.Patient, error)
+	Search(hospitalID string, req dto.SearchPatientRequest) ([]model.Patient, error)
 }
 
 type patientService struct {
@@ -22,15 +25,27 @@ func NewPatientService(repo repository.PatientRepository, client client.Hospital
 	return &patientService{repo, client}
 }
 
-func (s *patientService) Search(hospitalID string, req dto.SearchPatientRequest, limit int) ([]model.Patient, error) {
-	patients, err := s.repo.FindAll(hospitalID, req, limit)
+func (s *patientService) Search(hospitalID string, req dto.SearchPatientRequest) ([]model.Patient, error) {
+	patients, err := s.repo.FindAll(hospitalID, req)
+
 	if err != nil {
 		return nil, err
 	}
 
-	// has patient
+	// has patients
 	if len(patients) > 0 {
 		return patients, nil
+	}
+
+	// check identity of own hospital
+	existing, err := s.repo.FindOneByIdentity(req)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, err
+	}
+
+	// found but other hospital
+	if existing != nil && existing.HospitalID != "" && existing.HospitalID != hospitalID {
+		return []model.Patient{}, nil
 	}
 
 	var searchID string = ""
@@ -43,37 +58,41 @@ func (s *patientService) Search(hospitalID string, req dto.SearchPatientRequest,
 
 	// id not found in query
 	if searchID == "" {
-		return []model.Patient{}, err
+		return []model.Patient{}, nil
 	}
-	fmt.Println("searchID", searchID, "hosID", hospitalID)
+
 	// fetch from HIS (mock)
-	res, err := s.client.GetPatientByID(searchID, hospitalID)
+	res, err := s.client.GetPatientByID(searchID)
+
 	if err != nil {
 		return nil, err
 	}
 
-	patient, err := mapToPatientModel(res, hospitalID)
+	mapped, err := mapPatientToCreate(res, hospitalID)
 	if err != nil {
 		return nil, err
 	}
 
 	// create new patient
-	data, err := s.repo.Create(patient)
+	patient, err := s.repo.Create(mapped)
 	if err != nil {
 		return nil, err
 	}
 
-	return []model.Patient{*data}, nil
+	return []model.Patient{*patient}, nil
 }
 
-func mapToPatientModel(res *client.PatientResponse, hospitalID string) (model.Patient, error) {
-	var date_of_birth *time.Time
+func mapPatientToCreate(res *client.PatientResponse, hospitalID string) (model.Patient, error) {
+	var dob *time.Time
 
 	if res.DateOfBirth != "" {
-		t, err := time.Parse("2006-01-02", res.DateOfBirth)
-		if err == nil {
-			date_of_birth = &t
+		parsed, err := timeutil.ParseData(res.DateOfBirth)
+
+		if err != nil {
+			return model.Patient{}, err
 		}
+
+		dob = parsed
 	}
 
 	return model.Patient{
@@ -84,7 +103,7 @@ func mapToPatientModel(res *client.PatientResponse, hospitalID string) (model.Pa
 		FirstNameEN:  res.FirstNameEN,
 		MiddleNameEN: res.MiddleNameEN,
 		LastNameEN:   res.LastNameEN,
-		DateOfBirth:  date_of_birth,
+		DateOfBirth:  dob,
 		PatientHN:    res.PatientHN,
 		NationalID:   res.NationalID,
 		PassportID:   stringToPtr(res.PassportID),
@@ -95,13 +114,16 @@ func mapToPatientModel(res *client.PatientResponse, hospitalID string) (model.Pa
 }
 
 func mapGender(v string) model.PatientGender {
+	cleaned := strings.ToUpper(strings.TrimSpace(v))
+
 	var data model.PatientGender
 
-	if v == string(model.Male) {
-		data = "M"
-	} else if v == string(model.Femail) {
+	switch cleaned {
+	case "M":
+		data = model.Male
+	case "F":
 		data = "F"
-	} else {
+	default:
 		data = ""
 	}
 

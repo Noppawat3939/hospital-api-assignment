@@ -32,13 +32,14 @@ func NewHospitalClient(baseURL string) *HospitalClient {
 	return &HospitalClient{baseURL: baseURL, client: &http.Client{Timeout: 5 * time.Second}}
 }
 
-func (c *HospitalClient) GetPatientByID(id, hospitalID string) (*PatientResponse, error) {
-	url := fmt.Sprintf("%s/hospital/%s/patient/search/%s", c.baseURL, hospitalID, id)
+func (c *HospitalClient) GetPatientByID(id string) (*PatientResponse, error) {
+	url := fmt.Sprintf("%s/patient/search/%s", c.baseURL, id)
 
 	res, err := c.client.Get(url)
 	if err != nil {
 		return nil, err
 	}
+
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {

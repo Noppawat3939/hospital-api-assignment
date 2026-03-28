@@ -7,6 +7,7 @@ import (
 	"hospital-api/internal/repository"
 	"hospital-api/pkg/jwt"
 	"hospital-api/pkg/password"
+	"hospital-api/pkg/response"
 	"time"
 )
 
@@ -38,17 +39,17 @@ func (s *staffService) Login(req dto.StaffRequestBaseFields) (*dto.StaffLoginRes
 	// check not found
 	staff, err := s.repo.FindOneByUsernameAndHospitalID(req.Username, req.Hospital)
 	if err != nil {
-		return nil, err
+		return nil, errors.New(response.ErrInvalidCrediental)
 	}
 
 	// check password
 	matched := password.Compare(req.Password, staff.Password)
 	if !matched {
-		return nil, errors.New("invalid credential")
+		return nil, errors.New(response.ErrInvalidCrediental)
 	}
 
 	// gen jwt
-	exp := time.Now().Add(1 * time.Hour) // 1 hour
+	exp := time.Now().Add(1 * time.Hour)
 
 	tk, err := jwt.Gen(staff.Username, staff.HospitalID, exp)
 	if err != nil {

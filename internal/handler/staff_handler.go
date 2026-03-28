@@ -29,14 +29,16 @@ func (h *StaffHandler) StaffCreate(c *gin.Context) {
 
 	hospital, err := h.hosSrv.FindOne(req.Hospital)
 	if err != nil || hospital == nil {
-		response.Error(c, http.StatusBadRequest, response.ErrDataNotFound)
+		response.Error(c, http.StatusBadRequest, response.ErrHospitalInvalid)
 		return
 	}
+
+	req.Normalize()
 
 	staff, err := h.srv.Create(req)
 	if err != nil {
 		if db.IsUniqueConstraintError(err) {
-			response.Error(c, http.StatusConflict, "staff already exits in this hospital")
+			response.Error(c, http.StatusConflict, response.ErrDupCreateStaff)
 			return
 		}
 		response.Error(c, http.StatusInternalServerError, err.Error())
@@ -63,7 +65,7 @@ func (h *StaffHandler) StaffLogin(c *gin.Context) {
 
 	result, err := h.srv.Login(req)
 	if err != nil {
-		response.Error(c, http.StatusUnauthorized, response.ErrUnAuthorized)
+		response.Error(c, http.StatusUnauthorized, err.Error())
 		return
 	}
 

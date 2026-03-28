@@ -19,6 +19,7 @@ services:
     env_file:
       - .env.dev
     environment:
+      APP_ENV: docker
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}

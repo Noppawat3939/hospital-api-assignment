@@ -9,7 +9,11 @@ import (
 
 func SeedHospital(db *gorm.DB) error {
 	var count int64
-	hospitals := []model.Hospital{{ID: uuid.NewString(), Name: "Hospital A"}, {ID: uuid.NewString(), Name: "Hospital B"}, {ID: uuid.NewString(), Name: "Hospital C"}}
+	hospitals := []model.Hospital{
+		{ID: uuid.NewString(), Name: "Hospital A"},
+		{ID: uuid.NewString(), Name: "Hospital B"},
+		{ID: uuid.NewString(), Name: "Hospital C"},
+	}
 
 	if err := db.Model(&model.Hospital{}).Count(&count).Error; err != nil {
 		return err

@@ -18,9 +18,9 @@ func RegisterStaffRoutes(r *gin.Engine, db *gorm.DB) {
 
 	h := handler.NewStaffHandler(srv, hosSrv)
 
-	staff := r.Group("/staff")
+	group := r.Group("/staff")
 	{
-		staff.POST("/create", h.StaffCreate)
-		staff.POST("/login", h.StaffLogin)
+		group.POST("/create", h.StaffCreate)
+		group.POST("/login", h.StaffLogin)
 	}
 }

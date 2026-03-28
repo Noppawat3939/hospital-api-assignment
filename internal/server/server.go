@@ -14,6 +14,7 @@ type Server struct {
 }
 
 func New(db *gorm.DB) *Server {
+	gin.SetMode(gin.DebugMode)
 	r := gin.New()
 
 	r.RedirectTrailingSlash = true
@@ -24,7 +25,6 @@ func New(db *gorm.DB) *Server {
 	})
 
 	s := &Server{db: db, router: r}
-
 	s.registerRoutes()
 
 	return s
