@@ -1,1 +1,15 @@
+# Binaries
+/bin/
+/build/
+/dist/
+
+# Environment files
 .env
+.env.*
+!.env.example
+
+# Docker
+*.pid
+
+# Temporary files
+tmp/
